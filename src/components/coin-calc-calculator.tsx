@@ -18,6 +18,7 @@ import {
   Percent,
   type LucideIcon,
   X,
+  Info,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -255,7 +262,50 @@ export function CoinCalcCalculator() {
                 <CardDescription>A summary of your total costs to break even.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-lg">
-                 <FeeInput control={form.control} name="solIncinerator" label="SOL INCINERATOR" icon={Trash2} step="0.001" />
+                <FormField
+                  control={form.control}
+                  name="solIncinerator"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2">
+                         <FormLabel className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+                          <Trash2 className="h-4 w-4" />
+                          SOL INCINERATOR
+                        </FormLabel>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                <a
+                                  href="https://sol-incinerator.com/"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  Leave sol incinerator
+                                </a>{' '}
+                                to 0 if you don't clean up
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.001"
+                          min="0"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                          className="font-mono"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 <Separator/>
                 <ResultDisplay label="TOTAL SPENT IN FEES" value={totalSpentInFees} icon={Landmark} unit="SOL" />
                  <Separator/>
