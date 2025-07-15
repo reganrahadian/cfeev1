@@ -292,7 +292,7 @@ export function CoinCalcCalculator() {
       messageTimeoutRef.current = setTimeout(() => {
         setResetMessage(null);
         messageTimeoutRef.current = null;
-      }, 2000);
+      }, 500);
 
     } else {
       form.setValue('buyAmount', 0, { shouldDirty: true, shouldValidate: true });
