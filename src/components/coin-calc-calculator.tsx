@@ -36,6 +36,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   buyAmount: z.coerce.number().min(0).default(0),
@@ -90,13 +91,15 @@ const ResultDisplay = ({
   value,
   icon: Icon,
   isFooter = false,
+  className,
 }: {
   label: string;
   value: number;
   icon: LucideIcon;
   isFooter?: boolean;
+  className?: string;
 }) => (
-  <div className="flex items-center justify-between">
+  <div className={cn("flex items-center justify-between", className)}>
     <p className={`flex items-center gap-2 ${isFooter ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
       <Icon className="h-4 w-4" />
       {label}
@@ -193,8 +196,8 @@ export function CoinCalcCalculator() {
               <FeeInput control={form.control} name="bribeFeeBuy" label="Bribe Fee" icon={Gift} />
               <FeeInput control={form.control} name="gasFeeBuy" label="Gas Fee" icon={Flame} />
             </CardContent>
-            <CardFooter>
-              <ResultDisplay label="Total Buy Fees" value={totalBuyFees} icon={ReceiptText} isFooter />
+            <CardFooter className="pt-4">
+              <ResultDisplay label="Total Buy Fees" value={totalBuyFees} icon={ReceiptText} isFooter className="w-full"/>
             </CardFooter>
           </Card>
 
@@ -213,8 +216,8 @@ export function CoinCalcCalculator() {
               <FeeInput control={form.control} name="bribeFeeSell" label="Bribe Fee" icon={Gift} />
               <FeeInput control={form.control} name="gasFeeSell" label="Gas Fee" icon={Flame} />
             </CardContent>
-            <CardFooter>
-              <ResultDisplay label="Total Sell Fees" value={totalSellFees} icon={ReceiptText} isFooter />
+            <CardFooter className="pt-4">
+              <ResultDisplay label="Total Sell Fees" value={totalSellFees} icon={ReceiptText} isFooter className="w-full"/>
             </CardFooter>
           </Card>
         </div>

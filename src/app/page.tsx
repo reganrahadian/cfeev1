@@ -6,7 +6,7 @@ export default function Home() {
       <div className="w-full max-w-5xl space-y-8">
         <header className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-            CoinCalc
+            CFee v1
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
             The simplest meme coin fee calculator for Solana.

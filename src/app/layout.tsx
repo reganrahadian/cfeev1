@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'CoinCalc',
+  title: 'CFee v1',
   description: 'The simplest meme coin fee calculator for Solana.',
 };
 
