@@ -159,7 +159,6 @@ export function CoinCalcCalculator() {
     const buyingTaxValue = buyAmount * buyingTaxRate;
     const totalBuyFeesCalc = buyingTaxValue + priorityFeeBuy + bribeFeeBuy + gasFeeBuy;
 
-    const otherFees = priorityFeeBuy + bribeFeeBuy + gasFeeBuy + priorityFeeSell + bribeFeeSell + gasFeeSell;
     const numerator = buyAmount + totalBuyFeesCalc + priorityFeeSell + bribeFeeSell + gasFeeSell;
     const denominator = 1 - sellingTaxRate;
     
