@@ -23,14 +23,11 @@ export default function Home() {
       <footer className="w-full bg-background p-4 text-center">
         <p className="text-sm text-muted-foreground">
           Created by{' '}
-          <a
-            href="https://x.com/r2hdn"
-            target="_blank"
-            rel="noopener noreferrer"
+          <span
             className="text-primary hover:underline"
           >
             @r2hdn
-          </a>
+          </span>
         </p>
         <p className="text-xs text-muted-foreground mt-2">
           this is not a financial advice, do your own research.
