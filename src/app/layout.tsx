@@ -12,7 +12,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'CFee v1',
-  description: 'The simplest meme coin fee calculator for Solana.',
+  description: 'The simplest meme coin trading platform fee calculator.',
 };
 
 export default function RootLayout({
