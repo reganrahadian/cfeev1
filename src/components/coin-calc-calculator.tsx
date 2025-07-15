@@ -69,6 +69,7 @@ const FeeInput = ({
   icon: Icon,
   placeholder = "0.00",
   step,
+  tooltipContent
 }: {
   control: any;
   name: keyof FormData;
@@ -76,16 +77,32 @@ const FeeInput = ({
   icon: LucideIcon;
   placeholder?: string;
   step?: string;
+  tooltipContent?: React.ReactNode;
 }) => (
   <FormField
     control={control}
     name={name}
     render={({ field }) => (
       <FormItem>
-        <FormLabel className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
-          <Icon className="h-4 w-4" />
-          {label}
-        </FormLabel>
+        <div className="flex items-center gap-2">
+           <FormLabel className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+            <Icon className="h-4 w-4" />
+            {label}
+          </FormLabel>
+          {tooltipContent && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {tooltipContent}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+
         <FormControl>
           <Input
             type="number"
@@ -130,6 +147,42 @@ const ResultDisplay = ({
       {UnitIcon && <UnitIcon className="h-4 w-4" />}
     </p>
   </div>
+);
+
+const gasFeeTooltipContent = (
+  <p className="max-w-xs">
+    If you are on{' '}
+    <a href="https://axiom.trade" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      Axiom
+    </a>{' '}
+    adjust to 0.001,{' '}
+    <a href="https://bullx.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      BullX
+    </a>{' '}
+    adjust to 0.0015,{' '}
+    <a href="https://www.sniper.xyz/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      Sniperxyz
+    </a>{' '}
+    adjust to 0.0520, or set it based on the platform gas fee).
+  </p>
+);
+
+const taxTooltipContent = (
+  <p className="max-w-xs">
+    If you are on{' '}
+    <a href="https://axiom.trade" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      Axiom
+    </a>{' '}
+    adjust to 0.75%,{' '}
+    <a href="https://bullx.io" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      BullX
+    </a>{' '}
+    adjust to 1%,{' '}
+    <a href="https://www.sniper.xyz/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+      Sniperxyz
+    </a>{' '}
+    adjust to 1%, or set it based on the platform buying tax.
+  </p>
 );
 
 export function CoinCalcCalculator() {
@@ -178,7 +231,7 @@ export function CoinCalcCalculator() {
 
     const sellingTaxValue = breakEvenSellCalc * (sellingTax / 100);
     const totalSellFeesCalc = sellingTaxValue + priorityFeeSell + bribeFeeSell + gasFeeSell;
-
+    
     const totalSpentInFeesCalc = (totalBuyFeesCalc + totalSellFeesCalc) - solIncinerator;
 
     let pnlNeededCalc = 0;
@@ -220,10 +273,10 @@ export function CoinCalcCalculator() {
             </CardHeader>
             <CardContent className="space-y-4 flex-grow">
               <FeeInput control={form.control} name="buyAmount" label="Amount you put in (in SOL)" icon={Coins} step="0.1" />
-              <FeeInput control={form.control} name="buyingTax" label="BUYING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
+              <FeeInput control={form.control} name="buyingTax" label="BUYING TAX (%)" icon={Percent} placeholder="0.75" step="0.25" tooltipContent={taxTooltipContent}/>
               <FeeInput control={form.control} name="priorityFeeBuy" label="PRIORITY FEE ⛽" icon={ShieldCheck} step="0.00001" />
               <FeeInput control={form.control} name="bribeFeeBuy" label="BRIBE FEE 🫴" icon={Gift} step="0.00001" />
-              <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} step="0.00100" />
+              <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} step="0.00100" tooltipContent={gasFeeTooltipContent} />
             </CardContent>
             <CardFooter className="pt-4 mt-auto">
               <ResultDisplay label="TOTAL BUY FEES" value={totalBuyFees} icon={ReceiptText} isFooter unit="SOL" className="w-full"/>
@@ -240,10 +293,10 @@ export function CoinCalcCalculator() {
                   <ResultDisplay label="Break even Sell" value={breakEvenSell} icon={ArrowRightLeft} unit="SOL" />
                   <p className="text-xs text-muted-foreground pt-1">This is the total SOL you need to sell for to cover all fees and initial investment.</p>
               </div>
-               <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
+               <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75" step="0.25" tooltipContent={taxTooltipContent}/>
               <FeeInput control={form.control} name="priorityFeeSell" label="PRIORITY FEE ⛽" icon={ShieldCheck} step="0.00001" />
               <FeeInput control={form.control} name="bribeFeeSell" label="BRIBE FEE 🫴" icon={Gift} step="0.00001" />
-              <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} step="0.00100" />
+              <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} step="0.00100" tooltipContent={gasFeeTooltipContent}/>
             </CardContent>
             <CardFooter className="pt-4 mt-auto">
               <ResultDisplay label="TOTAL SELL FEES" value={totalSellFees} icon={ReceiptText} isFooter unit="SOL" className="w-full"/>
