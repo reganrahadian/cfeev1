@@ -185,6 +185,15 @@ const taxTooltipContent = (
   </p>
 );
 
+const resetMessages = [
+  'new Start ;)',
+  'skadoosh',
+  'womp',
+  'reseted',
+  'oopsie',
+  'bye-bye~',
+];
+
 export function CoinCalcCalculator() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -208,6 +217,9 @@ export function CoinCalcCalculator() {
   const [totalSpentInFees, setTotalSpentInFees] = useState(0);
   const [pnlNeeded, setPnlNeeded] = useState(0);
   const [isResetConfirmation, setIsResetConfirmation] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+
+  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const watchedValues = form.watch();
 
@@ -249,6 +261,11 @@ export function CoinCalcCalculator() {
   }, [watchedValues]);
 
   const handleReset = () => {
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = null;
+    }
+
     if (isResetConfirmation) {
       form.reset({
         buyAmount: 0,
@@ -262,17 +279,43 @@ export function CoinCalcCalculator() {
         gasFeeSell: 0.001,
         solIncinerator: 0.002,
       });
+
+      const randomMessage = resetMessages[Math.floor(Math.random() * resetMessages.length)];
+      setResetMessage(randomMessage);
       setIsResetConfirmation(false);
+
+      setTimeout(() => {
+        setResetMessage(null);
+      }, 2000);
+
     } else {
       form.setValue('buyAmount', 0, { shouldDirty: true, shouldValidate: true });
       setIsResetConfirmation(true);
+      resetTimeoutRef.current = setTimeout(() => {
+        setIsResetConfirmation(false);
+        resetTimeoutRef.current = null;
+      }, 5000);
     }
   };
 
   const handleMouseLeave = () => {
     if (isResetConfirmation) {
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+        resetTimeoutRef.current = null;
+      }
       setIsResetConfirmation(false);
     }
+  }
+
+  const getButtonText = () => {
+    if (resetMessage) {
+      return resetMessage;
+    }
+    if (isResetConfirmation) {
+      return 'Reset All?';
+    }
+    return 'Reset';
   }
 
   return (
@@ -382,7 +425,7 @@ export function CoinCalcCalculator() {
                     className="w-full"
                  >
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    {isResetConfirmation ? 'Reset All?' : 'Reset'}
+                    {getButtonText()}
                 </Button>
             </CardFooter>
         </Card>
