@@ -41,8 +41,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
-  TooltipContent,
   TooltipProvider,
+  TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -220,6 +220,7 @@ export function CoinCalcCalculator() {
   const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const watchedValues = form.watch();
 
@@ -265,6 +266,10 @@ export function CoinCalcCalculator() {
       clearTimeout(resetTimeoutRef.current);
       resetTimeoutRef.current = null;
     }
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+      messageTimeoutRef.current = null;
+    }
 
     if (isResetConfirmation) {
       form.reset({
@@ -284,8 +289,9 @@ export function CoinCalcCalculator() {
       setResetMessage(randomMessage);
       setIsResetConfirmation(false);
 
-      setTimeout(() => {
+      messageTimeoutRef.current = setTimeout(() => {
         setResetMessage(null);
+        messageTimeoutRef.current = null;
       }, 2000);
 
     } else {
@@ -305,6 +311,13 @@ export function CoinCalcCalculator() {
         resetTimeoutRef.current = null;
       }
       setIsResetConfirmation(false);
+    }
+    if (resetMessage) {
+       if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+        messageTimeoutRef.current = null;
+      }
+      setResetMessage(null);
     }
   }
 
