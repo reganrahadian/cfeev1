@@ -171,21 +171,16 @@ export function CoinCalcCalculator() {
       solIncinerator = 0,
     } = watchedValues;
 
-    // "total buy fees" formula is (("amount you put in sol" * ("buying tax"/100)) + "priority fee" + "bribe fee" + "gas fee")
     const buyingTaxValue = buyAmount * (buyingTax / 100);
     const totalBuyFeesCalc = buyingTaxValue + priorityFeeBuy + bribeFeeBuy + gasFeeBuy;
 
-    // "Break even Sell" formula is ("total buy fees"+"amount you put in sol")
     const breakEvenSellCalc = totalBuyFeesCalc + buyAmount;
 
-    // "total sell fees" formula is (("Break even Sell" * ("selling tax"/100)) + "priority fee" + "bribe fee" + "gas fee")
     const sellingTaxValue = breakEvenSellCalc * (sellingTax / 100);
     const totalSellFeesCalc = sellingTaxValue + priorityFeeSell + bribeFeeSell + gasFeeSell;
 
-    // "total spent in fee" formula is (("total buy fees" + "total sell fees") - "sol incinerator")
     const totalSpentInFeesCalc = (totalBuyFeesCalc + totalSellFeesCalc) - solIncinerator;
 
-    // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol") * 100)
     let pnlNeededCalc = 0;
     if (buyAmount > 0) {
       pnlNeededCalc = (totalSpentInFeesCalc / buyAmount) * 100;
@@ -279,13 +274,14 @@ export function CoinCalcCalculator() {
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>
+                                leave{' '}
                                 <a
                                   href="https://sol-incinerator.com/"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-primary hover:underline"
                                 >
-                                  Leave sol incinerator
+                                  sol incinerator
                                 </a>{' '}
                                 to 0 if you don't clean up
                               </p>
