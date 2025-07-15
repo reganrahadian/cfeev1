@@ -175,8 +175,8 @@ export function CoinCalcCalculator() {
     const sellingTaxValue = breakEvenSellCalc * (sellingTax / 100);
     const totalSellFeesCalc = sellingTaxValue + priorityFeeSell + bribeFeeSell + gasFeeSell;
 
-    // "total spent in fee" formula is ("total buy fees" + "total sell fees" - "sol incinerator")
-    const totalSpentInFeesCalc = totalBuyFeesCalc + totalSellFeesCalc - solIncinerator;
+    // "total spent in fee" formula is (("total buy fees" + "total sell fees") - "sol incinerator")
+    const totalSpentInFeesCalc = (totalBuyFeesCalc + totalSellFeesCalc) - solIncinerator;
 
     // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol") * 100)
     let pnlNeededCalc = 0;
