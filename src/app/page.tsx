@@ -14,7 +14,7 @@ export default function Home() {
               CFee v1
             </h1>
             <p className="text-muted-foreground mt-2 text-lg">
-              The simplest meme coin fee calculator for Solana.
+              The simplest meme coin trading platform fee calculator.
             </p>
           </header>
           <CoinCalcCalculator />
