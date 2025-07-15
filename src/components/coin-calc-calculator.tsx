@@ -204,9 +204,9 @@ export function CoinCalcCalculator() {
             <CardContent className="space-y-4 flex-grow">
               <FeeInput control={form.control} name="buyAmount" label="Amount you put in (in SOL)" icon={Coins} step="0.1" />
               <FeeInput control={form.control} name="buyingTax" label="BUYING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
-              <FeeInput control={form.control} name="priorityFeeBuy" label="PRIORITY FEE ⛽" icon={ShieldCheck} />
-              <FeeInput control={form.control} name="bribeFeeBuy" label="BRIBE FEE 🫴" icon={Gift} />
-              <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} />
+              <FeeInput control={form.control} name="priorityFeeBuy" label="PRIORITY FEE ⛽" icon={ShieldCheck} step="0.00001" />
+              <FeeInput control={form.control} name="bribeFeeBuy" label="BRIBE FEE 🫴" icon={Gift} step="0.00001" />
+              <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} step="0.00100" />
             </CardContent>
             <CardFooter className="pt-4 mt-auto">
               <ResultDisplay label="TOTAL BUY FEES" value={totalBuyFees} icon={ReceiptText} isFooter className="w-full"/>
@@ -224,9 +224,9 @@ export function CoinCalcCalculator() {
                   <p className="text-xs text-muted-foreground pt-1">This is the total SOL you need to sell for to cover all fees and initial investment.</p>
               </div>
                <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
-              <FeeInput control={form.control} name="priorityFeeSell" label="PRIORITY FEE ⛽" icon={ShieldCheck} />
-              <FeeInput control={form.control} name="bribeFeeSell" label="BRIBE FEE 🫴" icon={Gift} />
-              <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} />
+              <FeeInput control={form.control} name="priorityFeeSell" label="PRIORITY FEE ⛽" icon={ShieldCheck} step="0.00001" />
+              <FeeInput control={form.control} name="bribeFeeSell" label="BRIBE FEE 🫴" icon={Gift} step="0.00001" />
+              <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} step="0.00100" />
             </CardContent>
             <CardFooter className="pt-4 mt-auto">
               <ResultDisplay label="TOTAL SELL FEES" value={totalSellFees} icon={ReceiptText} isFooter className="w-full"/>
