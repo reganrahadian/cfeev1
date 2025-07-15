@@ -32,6 +32,9 @@ export default function Home() {
             @r2hdn
           </a>
         </p>
+        <p className="text-xs text-muted-foreground mt-2">
+          this is not a financial advice, do your own research.
+        </p>
       </footer>
     </>
   );

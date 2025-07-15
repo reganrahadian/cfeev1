@@ -151,7 +151,7 @@ const ResultDisplay = ({
 
 const gasFeeTooltipContent = (
   <p className="max-w-xs">
-    If you are on{' '}
+    if you are on{' '}
     <a href="https://axiom.trade" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
       Axiom
     </a>{' '}
@@ -169,7 +169,7 @@ const gasFeeTooltipContent = (
 
 const taxTooltipContent = (
   <p className="max-w-xs">
-    If you are on{' '}
+    if you are on{' '}
     <a href="https://axiom.trade" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
       Axiom
     </a>{' '}
