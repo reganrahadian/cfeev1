@@ -283,7 +283,7 @@ export function CoinCalcCalculator() {
                                 >
                                   sol incinerator
                                 </a>{' '}
-                                to 0 if you don't clean up
+                                to 0 if you don't clean up.
                               </p>
                             </TooltipContent>
                           </Tooltip>
