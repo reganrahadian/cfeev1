@@ -99,12 +99,14 @@ const ResultDisplay = ({
   icon: Icon,
   isFooter = false,
   className,
+  unit = "SOL",
 }: {
   label: string;
   value: number;
   icon: LucideIcon;
   isFooter?: boolean;
   className?: string;
+  unit?: string;
 }) => (
   <div className={cn("flex items-center justify-between", className)}>
     <p className={`flex items-center gap-2 ${isFooter ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
@@ -112,7 +114,7 @@ const ResultDisplay = ({
       {label}
     </p>
     <p className={`font-mono ${isFooter ? 'font-bold text-lg' : 'font-medium'}`}>
-      {value.toFixed(6)} SOL
+      {value.toFixed(6)} {unit}
     </p>
   </div>
 );
@@ -136,7 +138,9 @@ export function CoinCalcCalculator() {
   const [totalBuyFees, setTotalBuyFees] = useState(0);
   const [breakEvenSell, setBreakEvenSell] = useState(0);
   const [totalSellFees, setTotalSellFees] = useState(0);
+  const [solIncinerator] = useState(0.002);
   const [totalSpentInFees, setTotalSpentInFees] = useState(0);
+  const [pnlNeeded, setPnlNeeded] = useState(0);
 
   const watchedValues = form.watch();
 
@@ -153,30 +157,33 @@ export function CoinCalcCalculator() {
       gasFeeSell = 0,
     } = watchedValues;
 
-    const buyingTaxRate = buyingTax / 100;
-    const sellingTaxRate = sellingTax / 100;
-
-    const buyingTaxValue = buyAmount * buyingTaxRate;
+    // "total buy fees" formula is (("amount you put in sol" * ("buying tax"/100)) + "priority fee" + "bribe fee" + "gas fee")
+    const buyingTaxValue = buyAmount * (buyingTax / 100);
     const totalBuyFeesCalc = buyingTaxValue + priorityFeeBuy + bribeFeeBuy + gasFeeBuy;
 
-    const numerator = buyAmount + totalBuyFeesCalc + priorityFeeSell + bribeFeeSell + gasFeeSell;
-    const denominator = 1 - sellingTaxRate;
-    
-    let breakEvenSellCalc = 0;
-    if (denominator > 0 && buyAmount > 0) {
-        breakEvenSellCalc = numerator / denominator;
-    }
+    // "Break even Sell" formula is ("total buy fees"+"amount you put in sol")
+    const breakEvenSellCalc = totalBuyFeesCalc + buyAmount;
 
-    const sellingTaxValue = breakEvenSellCalc * sellingTaxRate;
+    // "total sell fees" formula is (("Break even Sell" * ("selling tax"/100)) + "priority fee" + "bribe fee" + "gas fee")
+    const sellingTaxValue = breakEvenSellCalc * (sellingTax / 100);
     const totalSellFeesCalc = sellingTaxValue + priorityFeeSell + bribeFeeSell + gasFeeSell;
 
-    const totalFees = totalBuyFeesCalc + totalSellFeesCalc;
+    // "total spent in fee" formula is ("total buy fees" + "total sell fees" + "sol incinerator")
+    const totalSpentInFeesCalc = totalBuyFeesCalc + totalSellFeesCalc + solIncinerator;
+
+    // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol")*100)
+    let pnlNeededCalc = 0;
+    if (buyAmount > 0) {
+      pnlNeededCalc = (totalSpentInFeesCalc / buyAmount) * 100;
+    }
 
     setTotalBuyFees(totalBuyFeesCalc);
     setBreakEvenSell(breakEvenSellCalc);
     setTotalSellFees(totalSellFeesCalc);
-    setTotalSpentInFees(totalFees);
-  }, [watchedValues]);
+    setTotalSpentInFees(totalSpentInFeesCalc);
+    setPnlNeeded(pnlNeededCalc);
+
+  }, [watchedValues, solIncinerator]);
 
   const handleReset = () => {
     form.reset({
@@ -240,11 +247,11 @@ export function CoinCalcCalculator() {
                 <CardDescription>A summary of your total costs to break even.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-lg">
-                <ResultDisplay label="SOL INCINERATOR" value={totalSpentInFees} icon={Trash2} />
+                <ResultDisplay label="SOL INCINERATOR" value={solIncinerator} icon={Trash2} />
                 <Separator/>
                 <ResultDisplay label="TOTAL SPENT IN FEES" value={totalSpentInFees} icon={Landmark} />
                  <Separator/>
-                <ResultDisplay label="PnL needed to Break Even" value={totalSpentInFees} icon={TrendingUp} />
+                <ResultDisplay label="PnL needed to Break Even" value={pnlNeeded} icon={TrendingUp} unit="%" />
             </CardContent>
             <CardFooter>
                  <Button type="button" variant="outline" onClick={handleReset} className="w-full">
