@@ -127,9 +127,9 @@ export function CoinCalcCalculator() {
       bribeFeeBuy: 0.0001,
       gasFeeBuy: 0.001,
       sellingTax: 0.75,
-      priorityFeeSell: undefined,
-      bribeFeeSell: undefined,
-      gasFeeSell: undefined,
+      priorityFeeSell: 0.0001,
+      bribeFeeSell: 0.0001,
+      gasFeeSell: 0.001,
     },
   });
 
@@ -186,9 +186,9 @@ export function CoinCalcCalculator() {
       bribeFeeBuy: 0.0001,
       gasFeeBuy: 0.001,
       sellingTax: 0.75,
-      priorityFeeSell: undefined,
-      bribeFeeSell: undefined,
-      gasFeeSell: undefined,
+      priorityFeeSell: 0.0001,
+      bribeFeeSell: 0.0001,
+      gasFeeSell: 0.001,
     });
   };
 
