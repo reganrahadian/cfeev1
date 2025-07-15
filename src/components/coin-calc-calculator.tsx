@@ -15,6 +15,7 @@ import {
   Landmark,
   TrendingUp,
   RefreshCw,
+  Percent,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,9 +41,11 @@ import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   buyAmount: z.coerce.number().min(0).default(0),
+  buyingTax: z.coerce.number().min(0).default(0.75),
   priorityFeeBuy: z.coerce.number().min(0).default(0),
   bribeFeeBuy: z.coerce.number().min(0).default(0),
   gasFeeBuy: z.coerce.number().min(0).default(0),
+  sellingTax: z.coerce.number().min(0).default(0.75),
   priorityFeeSell: z.coerce.number().min(0).default(0),
   bribeFeeSell: z.coerce.number().min(0).default(0),
   gasFeeSell: z.coerce.number().min(0).default(0),
@@ -55,11 +58,13 @@ const FeeInput = ({
   name,
   label,
   icon: Icon,
+  placeholder = "0.00",
 }: {
   control: any;
   name: keyof FormData;
   label: string;
   icon: LucideIcon;
+  placeholder?: string;
 }) => (
   <FormField
     control={control}
@@ -75,7 +80,7 @@ const FeeInput = ({
             type="number"
             step="any"
             min="0"
-            placeholder="0.00"
+            placeholder={placeholder}
             {...field}
             onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
             className="font-mono"
@@ -115,9 +120,11 @@ export function CoinCalcCalculator() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       buyAmount: undefined,
+      buyingTax: 0.75,
       priorityFeeBuy: undefined,
       bribeFeeBuy: undefined,
       gasFeeBuy: undefined,
+      sellingTax: 0.75,
       priorityFeeSell: undefined,
       bribeFeeSell: undefined,
       gasFeeSell: undefined,
@@ -134,19 +141,21 @@ export function CoinCalcCalculator() {
   useEffect(() => {
     const {
       buyAmount = 0,
+      buyingTax = 0,
       priorityFeeBuy = 0,
       bribeFeeBuy = 0,
       gasFeeBuy = 0,
+      sellingTax = 0,
       priorityFeeSell = 0,
       bribeFeeSell = 0,
       gasFeeSell = 0,
     } = watchedValues;
 
-    const buyingTaxRate = 0.0075;
-    const sellingTaxRate = 0.0075;
+    const buyingTaxRate = buyingTax / 100;
+    const sellingTaxRate = sellingTax / 100;
 
-    const buyingTax = buyAmount * buyingTaxRate;
-    const totalBuyFeesCalc = buyingTax + priorityFeeBuy + bribeFeeBuy + gasFeeBuy;
+    const buyingTaxValue = buyAmount * buyingTaxRate;
+    const totalBuyFeesCalc = buyingTaxValue + priorityFeeBuy + bribeFeeBuy + gasFeeBuy;
 
     const otherFees = priorityFeeBuy + bribeFeeBuy + gasFeeBuy + priorityFeeSell + bribeFeeSell + gasFeeSell;
     const numerator = buyAmount * (1 + buyingTaxRate) + otherFees;
@@ -157,8 +166,8 @@ export function CoinCalcCalculator() {
         breakEvenSellCalc = numerator / denominator;
     }
 
-    const sellingTax = breakEvenSellCalc * sellingTaxRate;
-    const totalSellFeesCalc = sellingTax + priorityFeeSell + bribeFeeSell + gasFeeSell;
+    const sellingTaxValue = breakEvenSellCalc * sellingTaxRate;
+    const totalSellFeesCalc = sellingTaxValue + priorityFeeSell + bribeFeeSell + gasFeeSell;
 
     const totalFees = totalBuyFeesCalc + totalSellFeesCalc;
 
@@ -171,9 +180,11 @@ export function CoinCalcCalculator() {
   const handleReset = () => {
     form.reset({
       buyAmount: undefined,
+      buyingTax: 0.75,
       priorityFeeBuy: undefined,
       bribeFeeBuy: undefined,
       gasFeeBuy: undefined,
+      sellingTax: 0.75,
       priorityFeeSell: undefined,
       bribeFeeSell: undefined,
       gasFeeSell: undefined,
@@ -190,14 +201,15 @@ export function CoinCalcCalculator() {
               <CardDescription>Enter your buy transaction details.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FeeInput control={form.control} name="buyAmount" label="Amount (SOL)" icon={Coins} />
+              <FeeInput control={form.control} name="buyAmount" label="Amount you put in (in SOL)" icon={Coins} />
+              <FeeInput control={form.control} name="buyingTax" label="BUYING TAX (%)" icon={Percent} placeholder="0.75"/>
               <Separator />
-              <FeeInput control={form.control} name="priorityFeeBuy" label="Priority Fee" icon={ShieldCheck} />
-              <FeeInput control={form.control} name="bribeFeeBuy" label="Bribe Fee" icon={Gift} />
-              <FeeInput control={form.control} name="gasFeeBuy" label="Gas Fee" icon={Flame} />
+              <FeeInput control={form.control} name="priorityFeeBuy" label="PRIORITY FEE ⛽" icon={ShieldCheck} />
+              <FeeInput control={form.control} name="bribeFeeBuy" label="BRIBE FEE 🫴" icon={Gift} />
+              <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} />
             </CardContent>
             <CardFooter className="pt-4">
-              <ResultDisplay label="Total Buy Fees" value={totalBuyFees} icon={ReceiptText} isFooter className="w-full"/>
+              <ResultDisplay label="TOTAL BUY FEES" value={totalBuyFees} icon={ReceiptText} isFooter className="w-full"/>
             </CardFooter>
           </Card>
 
@@ -208,16 +220,17 @@ export function CoinCalcCalculator() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2 rounded-lg border bg-secondary/50 p-4">
-                  <ResultDisplay label="Break-even Sell" value={breakEvenSell} icon={ArrowRightLeft} />
+                  <ResultDisplay label="Break even Sell (in SOL)" value={breakEvenSell} icon={ArrowRightLeft} />
                   <p className="text-xs text-muted-foreground pt-1">This is the total SOL you need to sell for to cover all fees and initial investment.</p>
               </div>
+               <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75"/>
               <Separator />
-              <FeeInput control={form.control} name="priorityFeeSell" label="Priority Fee" icon={ShieldCheck} />
-              <FeeInput control={form.control} name="bribeFeeSell" label="Bribe Fee" icon={Gift} />
-              <FeeInput control={form.control} name="gasFeeSell" label="Gas Fee" icon={Flame} />
+              <FeeInput control={form.control} name="priorityFeeSell" label="PRIORITY FEE ⛽" icon={ShieldCheck} />
+              <FeeInput control={form.control} name="bribeFeeSell" label="BRIBE FEE 🫴" icon={Gift} />
+              <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} />
             </CardContent>
             <CardFooter className="pt-4">
-              <ResultDisplay label="Total Sell Fees" value={totalSellFees} icon={ReceiptText} isFooter className="w-full"/>
+              <ResultDisplay label="TOTAL SELL FEES" value={totalSellFees} icon={ReceiptText} isFooter className="w-full"/>
             </CardFooter>
           </Card>
         </div>
@@ -228,11 +241,11 @@ export function CoinCalcCalculator() {
                 <CardDescription>A summary of your total costs to break even.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-lg">
-                <ResultDisplay label="Total SOL Incinerated" value={totalSpentInFees} icon={Trash2} />
+                <ResultDisplay label="SOL INCINERATOR" value={totalSpentInFees} icon={Trash2} />
                 <Separator/>
-                <ResultDisplay label="Total Fees (Buy + Sell)" value={totalSpentInFees} icon={Landmark} />
+                <ResultDisplay label="TOTAL SPENT IN FEES" value={totalSpentInFees} icon={Landmark} />
                  <Separator/>
-                <ResultDisplay label="PnL Needed to Break Even" value={totalSpentInFees} icon={TrendingUp} />
+                <ResultDisplay label="PnL needed to Break Even" value={totalSpentInFees} icon={TrendingUp} />
             </CardContent>
             <CardFooter>
                  <Button type="button" variant="outline" onClick={handleReset} className="w-full">

@@ -24,7 +24,7 @@ export default function Home() {
         <p className="text-sm text-muted-foreground">
           Created by{' '}
           <a
-            href="https://github.com/reganrahadian"
+            href="https://x.com/r2hdn"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"
