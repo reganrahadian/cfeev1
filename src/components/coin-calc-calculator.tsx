@@ -41,11 +41,11 @@ import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   buyAmount: z.coerce.number().min(0).default(0),
-  buyingTax: z.coerce.number().min(0).default(0.75),
+  buyingTax: z.coerce.number().min(0).max(100).default(0.75),
   priorityFeeBuy: z.coerce.number().min(0).default(0),
   bribeFeeBuy: z.coerce.number().min(0).default(0),
   gasFeeBuy: z.coerce.number().min(0).default(0),
-  sellingTax: z.coerce.number().min(0).default(0.75),
+  sellingTax: z.coerce.number().min(0).max(100).default(0.75),
   priorityFeeSell: z.coerce.number().min(0).default(0),
   bribeFeeSell: z.coerce.number().min(0).default(0),
   gasFeeSell: z.coerce.number().min(0).default(0),
@@ -59,12 +59,14 @@ const FeeInput = ({
   label,
   icon: Icon,
   placeholder = "0.00",
+  step = "any",
 }: {
   control: any;
   name: keyof FormData;
   label: string;
   icon: LucideIcon;
   placeholder?: string;
+  step?: string;
 }) => (
   <FormField
     control={control}
@@ -78,7 +80,7 @@ const FeeInput = ({
         <FormControl>
           <Input
             type="number"
-            step="any"
+            step={step}
             min="0"
             placeholder={placeholder}
             {...field}
@@ -158,7 +160,7 @@ export function CoinCalcCalculator() {
     const totalBuyFeesCalc = buyingTaxValue + priorityFeeBuy + bribeFeeBuy + gasFeeBuy;
 
     const otherFees = priorityFeeBuy + bribeFeeBuy + gasFeeBuy + priorityFeeSell + bribeFeeSell + gasFeeSell;
-    const numerator = buyAmount * (1 + buyingTaxRate) + otherFees;
+    const numerator = buyAmount + totalBuyFeesCalc + priorityFeeSell + bribeFeeSell + gasFeeSell;
     const denominator = 1 - sellingTaxRate;
     
     let breakEvenSellCalc = 0;
@@ -195,41 +197,41 @@ export function CoinCalcCalculator() {
     <Form {...form}>
       <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-          <Card>
+          <Card className="flex flex-col h-full">
             <CardHeader>
               <CardTitle>Buy</CardTitle>
               <CardDescription>Enter your buy transaction details.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <FeeInput control={form.control} name="buyAmount" label="Amount you put in (in SOL)" icon={Coins} />
-              <FeeInput control={form.control} name="buyingTax" label="BUYING TAX (%)" icon={Percent} placeholder="0.75"/>
+            <CardContent className="space-y-4 flex-grow">
+              <FeeInput control={form.control} name="buyAmount" label="Amount you put in (in SOL)" icon={Coins} step="0.1" />
+              <FeeInput control={form.control} name="buyingTax" label="BUYING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
               <Separator />
               <FeeInput control={form.control} name="priorityFeeBuy" label="PRIORITY FEE ⛽" icon={ShieldCheck} />
               <FeeInput control={form.control} name="bribeFeeBuy" label="BRIBE FEE 🫴" icon={Gift} />
               <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} />
             </CardContent>
-            <CardFooter className="pt-4">
+            <CardFooter className="pt-4 mt-auto">
               <ResultDisplay label="TOTAL BUY FEES" value={totalBuyFees} icon={ReceiptText} isFooter className="w-full"/>
             </CardFooter>
           </Card>
 
-          <Card>
+          <Card className="flex flex-col h-full">
             <CardHeader>
               <CardTitle>Sell</CardTitle>
               <CardDescription>Fees for the break-even sell transaction.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-grow">
               <div className="space-y-2 rounded-lg border bg-secondary/50 p-4">
                   <ResultDisplay label="Break even Sell (in SOL)" value={breakEvenSell} icon={ArrowRightLeft} />
                   <p className="text-xs text-muted-foreground pt-1">This is the total SOL you need to sell for to cover all fees and initial investment.</p>
               </div>
-               <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75"/>
+               <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
               <Separator />
               <FeeInput control={form.control} name="priorityFeeSell" label="PRIORITY FEE ⛽" icon={ShieldCheck} />
               <FeeInput control={form.control} name="bribeFeeSell" label="BRIBE FEE 🫴" icon={Gift} />
               <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} />
             </CardContent>
-            <CardFooter className="pt-4">
+            <CardFooter className="pt-4 mt-auto">
               <ResultDisplay label="TOTAL SELL FEES" value={totalSellFees} icon={ReceiptText} isFooter className="w-full"/>
             </CardFooter>
           </Card>
