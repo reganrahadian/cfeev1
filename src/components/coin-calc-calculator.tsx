@@ -178,10 +178,10 @@ export function CoinCalcCalculator() {
     // "total spent in fee" formula is ("total buy fees" + "total sell fees" + "sol incinerator")
     const totalSpentInFeesCalc = totalBuyFeesCalc + totalSellFeesCalc + solIncinerator;
 
-    // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol"))
+    // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol") * 100)
     let pnlNeededCalc = 0;
     if (buyAmount > 0) {
-      pnlNeededCalc = (totalSpentInFeesCalc / buyAmount);
+      pnlNeededCalc = (totalSpentInFeesCalc / buyAmount) * 100;
     }
 
     setTotalBuyFees(totalBuyFeesCalc);
@@ -259,7 +259,7 @@ export function CoinCalcCalculator() {
                 <Separator/>
                 <ResultDisplay label="TOTAL SPENT IN FEES" value={totalSpentInFees} icon={Landmark} unit="SOL" />
                  <Separator/>
-                <ResultDisplay label="PnL needed to Break Even" value={pnlNeeded} icon={TrendingUp} unit="x" />
+                <ResultDisplay label="PnL needed to Break Even" value={pnlNeeded} icon={TrendingUp} unit="%" />
             </CardContent>
             <CardFooter>
                  <Button type="button" variant="outline" onClick={handleReset} className="w-full">
