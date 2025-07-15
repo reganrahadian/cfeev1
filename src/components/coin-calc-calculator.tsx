@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Coins,
   ShieldCheck,
@@ -207,6 +207,8 @@ export function CoinCalcCalculator() {
   const [totalSellFees, setTotalSellFees] = useState(0);
   const [totalSpentInFees, setTotalSpentInFees] = useState(0);
   const [pnlNeeded, setPnlNeeded] = useState(0);
+  const [isResetConfirmation, setIsResetConfirmation] = useState(false);
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const watchedValues = form.watch();
 
@@ -247,19 +249,46 @@ export function CoinCalcCalculator() {
 
   }, [watchedValues]);
 
+  useEffect(() => {
+    // Cleanup timer on component unmount
+    return () => {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleReset = () => {
-    form.reset({
-      buyAmount: 0,
-      buyingTax: 0.75,
-      priorityFeeBuy: 0.0001,
-      bribeFeeBuy: 0.0001,
-      gasFeeBuy: 0.001,
-      sellingTax: 0.75,
-      priorityFeeSell: 0.0001,
-      bribeFeeSell: 0.0001,
-      gasFeeSell: 0.001,
-      solIncinerator: 0.002,
-    });
+    if (isResetConfirmation) {
+      // Second click: reset everything
+      form.reset({
+        buyAmount: 0,
+        buyingTax: 0.75,
+        priorityFeeBuy: 0.0001,
+        bribeFeeBuy: 0.0001,
+        gasFeeBuy: 0.001,
+        sellingTax: 0.75,
+        priorityFeeSell: 0.0001,
+        bribeFeeSell: 0.0001,
+        gasFeeSell: 0.001,
+        solIncinerator: 0.002,
+      });
+      setIsResetConfirmation(false);
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
+      }
+    } else {
+      // First click: reset only buyAmount
+      form.setValue('buyAmount', 0, { shouldDirty: true, shouldValidate: true });
+      setIsResetConfirmation(true);
+
+      // Set a timer to revert to single-click behavior
+      resetTimerRef.current = setTimeout(() => {
+        setIsResetConfirmation(false);
+        resetTimerRef.current = null;
+      }, 3000); // 3 seconds to click again
+    }
   };
 
   return (
@@ -363,7 +392,7 @@ export function CoinCalcCalculator() {
             <CardFooter>
                  <Button type="button" variant="outline" onClick={handleReset} className="w-full">
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    Reset
+                    {isResetConfirmation ? 'Reset All?' : 'Reset'}
                 </Button>
             </CardFooter>
         </Card>
