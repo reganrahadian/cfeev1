@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Percent,
   type LucideIcon,
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -42,13 +43,14 @@ import { cn } from "@/lib/utils";
 const formSchema = z.object({
   buyAmount: z.coerce.number().min(0).default(0),
   buyingTax: z.coerce.number().min(0).max(100).default(0.75),
-  priorityFeeBuy: z.coerce.number().min(0).default(0),
-  bribeFeeBuy: z.coerce.number().min(0).default(0),
-  gasFeeBuy: z.coerce.number().min(0).default(0),
+  priorityFeeBuy: z.coerce.number().min(0).default(0.0001),
+  bribeFeeBuy: z.coerce.number().min(0).default(0.0001),
+  gasFeeBuy: z.coerce.number().min(0).default(0.001),
   sellingTax: z.coerce.number().min(0).max(100).default(0.75),
-  priorityFeeSell: z.coerce.number().min(0).default(0),
-  bribeFeeSell: z.coerce.number().min(0).default(0),
-  gasFeeSell: z.coerce.number().min(0).default(0),
+  priorityFeeSell: z.coerce.number().min(0).default(0.0001),
+  bribeFeeSell: z.coerce.number().min(0).default(0.0001),
+  gasFeeSell: z.coerce.number().min(0).default(0.001),
+  solIncinerator: z.coerce.number().min(0).default(0.002),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -99,7 +101,8 @@ const ResultDisplay = ({
   icon: Icon,
   isFooter = false,
   className,
-  unit = "SOL",
+  unit,
+  unitIcon: UnitIcon
 }: {
   label: string;
   value: number;
@@ -107,14 +110,17 @@ const ResultDisplay = ({
   isFooter?: boolean;
   className?: string;
   unit?: string;
+  unitIcon?: LucideIcon;
 }) => (
   <div className={cn("flex items-center justify-between", className)}>
     <p className={`flex items-center gap-2 ${isFooter ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
       <Icon className="h-4 w-4" />
       {label}
     </p>
-    <p className={`font-mono ${isFooter ? 'font-bold text-lg' : 'font-medium'}`}>
-      {value.toFixed(6)} {unit}
+    <p className={`font-mono flex items-center gap-1 ${isFooter ? 'font-bold text-lg' : 'font-medium'}`}>
+      {value.toFixed(6)} 
+      {unit && <span className="text-xs">{unit}</span>}
+      {UnitIcon && <UnitIcon className="h-4 w-4" />}
     </p>
   </div>
 );
@@ -132,13 +138,13 @@ export function CoinCalcCalculator() {
       priorityFeeSell: 0.0001,
       bribeFeeSell: 0.0001,
       gasFeeSell: 0.001,
+      solIncinerator: 0.002,
     },
   });
 
   const [totalBuyFees, setTotalBuyFees] = useState(0);
   const [breakEvenSell, setBreakEvenSell] = useState(0);
   const [totalSellFees, setTotalSellFees] = useState(0);
-  const [solIncinerator] = useState(0.002);
   const [totalSpentInFees, setTotalSpentInFees] = useState(0);
   const [pnlNeeded, setPnlNeeded] = useState(0);
 
@@ -155,6 +161,7 @@ export function CoinCalcCalculator() {
       priorityFeeSell = 0,
       bribeFeeSell = 0,
       gasFeeSell = 0,
+      solIncinerator = 0,
     } = watchedValues;
 
     // "total buy fees" formula is (("amount you put in sol" * ("buying tax"/100)) + "priority fee" + "bribe fee" + "gas fee")
@@ -171,10 +178,10 @@ export function CoinCalcCalculator() {
     // "total spent in fee" formula is ("total buy fees" + "total sell fees" + "sol incinerator")
     const totalSpentInFeesCalc = totalBuyFeesCalc + totalSellFeesCalc + solIncinerator;
 
-    // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol")*100)
+    // "PnL needed to break even" formula is (("total spent in fee" /"amount you put in sol"))
     let pnlNeededCalc = 0;
     if (buyAmount > 0) {
-      pnlNeededCalc = (totalSpentInFeesCalc / buyAmount) * 100;
+      pnlNeededCalc = (totalSpentInFeesCalc / buyAmount);
     }
 
     setTotalBuyFees(totalBuyFeesCalc);
@@ -183,7 +190,7 @@ export function CoinCalcCalculator() {
     setTotalSpentInFees(totalSpentInFeesCalc);
     setPnlNeeded(pnlNeededCalc);
 
-  }, [watchedValues, solIncinerator]);
+  }, [watchedValues]);
 
   const handleReset = () => {
     form.reset({
@@ -196,6 +203,7 @@ export function CoinCalcCalculator() {
       priorityFeeSell: 0.0001,
       bribeFeeSell: 0.0001,
       gasFeeSell: 0.001,
+      solIncinerator: 0.002,
     });
   };
 
@@ -216,7 +224,7 @@ export function CoinCalcCalculator() {
               <FeeInput control={form.control} name="gasFeeBuy" label="GAS FEE" icon={Flame} step="0.00100" />
             </CardContent>
             <CardFooter className="pt-4 mt-auto">
-              <ResultDisplay label="TOTAL BUY FEES" value={totalBuyFees} icon={ReceiptText} isFooter className="w-full"/>
+              <ResultDisplay label="TOTAL BUY FEES" value={totalBuyFees} icon={ReceiptText} isFooter unit="SOL" className="w-full"/>
             </CardFooter>
           </Card>
 
@@ -227,7 +235,7 @@ export function CoinCalcCalculator() {
             </CardHeader>
             <CardContent className="space-y-4 flex-grow">
               <div className="space-y-2 rounded-lg border bg-secondary/50 p-4">
-                  <ResultDisplay label="Break even Sell (in SOL)" value={breakEvenSell} icon={ArrowRightLeft} />
+                  <ResultDisplay label="Break even Sell" value={breakEvenSell} icon={ArrowRightLeft} unit="SOL" />
                   <p className="text-xs text-muted-foreground pt-1">This is the total SOL you need to sell for to cover all fees and initial investment.</p>
               </div>
                <FeeInput control={form.control} name="sellingTax" label="SELLING TAX (%)" icon={Percent} placeholder="0.75" step="0.25"/>
@@ -236,7 +244,7 @@ export function CoinCalcCalculator() {
               <FeeInput control={form.control} name="gasFeeSell" label="GAS FEE" icon={Flame} step="0.00100" />
             </CardContent>
             <CardFooter className="pt-4 mt-auto">
-              <ResultDisplay label="TOTAL SELL FEES" value={totalSellFees} icon={ReceiptText} isFooter className="w-full"/>
+              <ResultDisplay label="TOTAL SELL FEES" value={totalSellFees} icon={ReceiptText} isFooter unit="SOL" className="w-full"/>
             </CardFooter>
           </Card>
         </div>
@@ -247,11 +255,11 @@ export function CoinCalcCalculator() {
                 <CardDescription>A summary of your total costs to break even.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-lg">
-                <ResultDisplay label="SOL INCINERATOR" value={solIncinerator} icon={Trash2} />
+                 <FeeInput control={form.control} name="solIncinerator" label="SOL INCINERATOR" icon={Trash2} step="0.001" />
                 <Separator/>
-                <ResultDisplay label="TOTAL SPENT IN FEES" value={totalSpentInFees} icon={Landmark} />
+                <ResultDisplay label="TOTAL SPENT IN FEES" value={totalSpentInFees} icon={Landmark} unit="SOL" />
                  <Separator/>
-                <ResultDisplay label="PnL needed to Break Even" value={pnlNeeded} icon={TrendingUp} unit="%" />
+                <ResultDisplay label="PnL needed to Break Even" value={pnlNeeded} icon={TrendingUp} unit="x" />
             </CardContent>
             <CardFooter>
                  <Button type="button" variant="outline" onClick={handleReset} className="w-full">
