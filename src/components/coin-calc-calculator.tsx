@@ -129,7 +129,7 @@ export function CoinCalcCalculator() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      buyAmount: undefined,
+      buyAmount: 0,
       buyingTax: 0.75,
       priorityFeeBuy: 0.0001,
       bribeFeeBuy: 0.0001,
@@ -194,7 +194,7 @@ export function CoinCalcCalculator() {
 
   const handleReset = () => {
     form.reset({
-      buyAmount: undefined,
+      buyAmount: 0,
       buyingTax: 0.75,
       priorityFeeBuy: 0.0001,
       bribeFeeBuy: 0.0001,
